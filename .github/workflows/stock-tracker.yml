@@ -1,5 +1,72 @@
- name: Process Custom Stocks
-  if: github.event.inputs.stock_symbols != 'from_excel'
-  run: |
-    echo "Custom stocks: ${{ github.event.inputs.stock_symbols }}"
-    # Add logic to process custom stock list
+name: Stock Price Tracker Manual Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_note:
+        description: 'Note for this run'
+        required: false
+        default: 'Manual stock price collection'
+        type: string
+
+jobs:
+  fetch-stock-prices:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Install Firefox
+      run: |
+        sudo apt-get update
+        sudo apt-get install firefox -y
+        firefox --version
+    
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    
+    - name: Show Run Information
+      run: |
+        echo "🚀 Running Stock Price Tracker"
+        echo "📝 Note: ${{ github.event.inputs.run_note }}"
+        echo "🕒 Started at: $(date)"
+    
+    - name: Execute Stock Price Tracker
+      run: |
+        echo "Starting Maven build..."
+        mvn clean compile
+        echo "Running stock price tracker..."
+        mvn exec:java -Dexec.mainClass="com.example.IndianStockPriceAutomation"
+    
+    - name: Generate Allure Report
+      if: always()
+      run: |
+        mvn allure:report || echo "Allure report generation failed, continuing..."
+    
+    - name: Upload Stock Price Results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: stock-prices-results-${{ github.run_number }}
+        path: |
+          stock_prices_output.xlsx
+          target/allure-results/
+          target/site/allure-maven-plugin/
+        retention-days: 30
+    
+    - name: Completion Summary
+      run: |
+        echo "✅ Stock Price Tracker completed!"
+        echo "📁 Check the 'Artifacts' section to download your results"
+        echo "🕒 Completed at: $(date)"
