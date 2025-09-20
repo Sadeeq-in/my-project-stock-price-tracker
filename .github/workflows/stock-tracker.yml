@@ -30,7 +30,7 @@ jobs:
         firefox --version
     
     - name: Cache Maven packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
@@ -55,7 +55,7 @@ jobs:
         mvn allure:report || echo "Allure report generation failed, continuing..."
     
     - name: Upload Stock Price Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: stock-prices-results-${{ github.run_number }}
@@ -70,3 +70,4 @@ jobs:
         echo "✅ Stock Price Tracker completed!"
         echo "📁 Check the 'Artifacts' section to download your results"
         echo "🕒 Completed at: $(date)"
+
