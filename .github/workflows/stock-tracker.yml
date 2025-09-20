@@ -1,0 +1,5 @@
+ name: Process Custom Stocks
+  if: github.event.inputs.stock_symbols != 'from_excel'
+  run: |
+    echo "Custom stocks: ${{ github.event.inputs.stock_symbols }}"
+    # Add logic to process custom stock list
