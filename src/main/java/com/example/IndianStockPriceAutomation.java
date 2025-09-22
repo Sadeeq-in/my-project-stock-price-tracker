@@ -18,7 +18,7 @@ import java.util.*;
 
 public class IndianStockPriceAutomation {
 
-    private static final String EXCEL_FILE_PATH = "resources/stocks_list.xlsx";
+    private static final String EXCEL_FILE_PATH = "src/main/resources/stocks_list.xlsx";
     private static final String OUTPUT_FILE_PATH = "stock_prices_output.xlsx";
     private static final int TIMEOUT_SECONDS = 15;
 
@@ -356,4 +356,5 @@ public class IndianStockPriceAutomation {
         }
     }
 }
+
 
