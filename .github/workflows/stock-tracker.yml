@@ -49,10 +49,6 @@ jobs:
         echo "Running stock price tracker..."
         mvn exec:java -Dexec.mainClass="com.example.IndianStockPriceAutomation"
     
-    - name: Generate Allure Report
-      if: always()
-      run: |
-        mvn allure:report || echo "Allure report generation failed, continuing..."
     
     - name: Upload Stock Price Results
       uses: actions/upload-artifact@v4
