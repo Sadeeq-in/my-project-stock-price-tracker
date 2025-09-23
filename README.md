@@ -24,7 +24,7 @@ Apache POI (Excel handling)
 
 WebDriverManager (Driver management)
 
-Firefox (GeckoDriver) (Browser automation)
+Chrome (Browser automation)
 
 ## Output
 
