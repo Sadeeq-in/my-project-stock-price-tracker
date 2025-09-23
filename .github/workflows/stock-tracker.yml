@@ -25,9 +25,13 @@ jobs:
         echo "Stock Symbol" > src/main/resources/stocks_list.csv
         echo "RELIANCE" >> src/main/resources/stocks_list.csv
         echo "TCS" >> src/main/resources/stocks_list.csv
-        echo "INFOSYS" >> src/main/resources/stocks_list.csv
+        echo "INFY" >> src/main/resources/stocks_list.csv
         echo "WIPRO" >> src/main/resources/stocks_list.csv
         echo "HDFCBANK" >> src/main/resources/stocks_list.csv
+        echo "ITC" >> src/main/resources/stocks_list.csv
+        echo "NTPC" >> src/main/resources/stocks_list.csv
+        echo "SBIN" >> src/main/resources/stocks_list.csv
+
         echo "CSV file created with stock symbols"
         cat src/main/resources/stocks_list.csv
     
