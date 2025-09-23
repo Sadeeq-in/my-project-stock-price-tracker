@@ -22,19 +22,17 @@ jobs:
     - name: Create input CSV file
       run: |
         mkdir -p src/main/resources
-        cat > src/main/resources/stocks_list.csv << EOF
-Stock Symbol
-RELIANCE
-TCS
-INFOSYS
-WIPRO
-HDFCBANK
-BHARTIARTL
-ITC
-HCLTECH
-KOTAKBANK
-LT
-EOF
+        echo "Stock Symbol" > src/main/resources/stocks_list.csv
+        echo "RELIANCE" >> src/main/resources/stocks_list.csv
+        echo "TCS" >> src/main/resources/stocks_list.csv
+        echo "INFOSYS" >> src/main/resources/stocks_list.csv
+        echo "WIPRO" >> src/main/resources/stocks_list.csv
+        echo "HDFCBANK" >> src/main/resources/stocks_list.csv
+        echo "BHARTIARTL" >> src/main/resources/stocks_list.csv
+        echo "ITC" >> src/main/resources/stocks_list.csv
+        echo "HCLTECH" >> src/main/resources/stocks_list.csv
+        echo "KOTAKBANK" >> src/main/resources/stocks_list.csv
+        echo "LT" >> src/main/resources/stocks_list.csv
         echo "CSV file created with stock symbols"
         cat src/main/resources/stocks_list.csv
     
@@ -47,19 +45,14 @@ EOF
     
     - name: Install Firefox and Geckodriver manually
       run: |
-        # Install Firefox
         sudo apt-get install -y firefox
         firefox --version
-        
-        # Download and install Geckodriver manually
         GECKODRIVER_VERSION="v0.33.0"
         wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz
         tar -xzf geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz
         chmod +x geckodriver
         sudo mv geckodriver /usr/local/bin/
         geckodriver --version
-        
-        # Install additional dependencies
         sudo apt-get install -y libgtk-3-0 libdbus-glib-1-2 libxss1
     
     - name: Set up JDK 17
