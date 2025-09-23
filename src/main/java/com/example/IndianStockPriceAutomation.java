@@ -5,8 +5,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxOptions;
+//import org.openqa.selenium.firefox.FirefoxDriver;
+//import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.nio.file.Paths;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
 public class IndianStockPriceAutomation {
 
@@ -95,6 +97,26 @@ public class IndianStockPriceAutomation {
     }
 
     private WebDriver setupWebDriver() {
+    WebDriverManager.chromedriver().setup();
+    
+    ChromeOptions options = new ChromeOptions();
+    
+    // Chrome headless options
+    options.addArguments("--headless=new");
+    options.addArguments("--no-sandbox");
+    options.addArguments("--disable-dev-shm-usage");
+    options.addArguments("--disable-gpu");
+    options.addArguments("--window-size=1920,1080");
+    options.addArguments("--disable-extensions");
+    options.addArguments("--disable-web-security");
+    options.addArguments("--allow-running-insecure-content");
+    
+    // Set user agent
+    options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+    
+    return new ChromeDriver(options);
+
+   /* private WebDriver setupWebDriver() {
         WebDriverManager.firefoxdriver().setup();
 
         FirefoxOptions options = new FirefoxOptions();
@@ -122,6 +144,7 @@ public class IndianStockPriceAutomation {
         options.addPreference("network.http.response.timeout", 60);
 
         return new FirefoxDriver(options);
+       */
     }
 
     // PRIMARY: NSE India as main data source - SIMPLIFIED to get only price
@@ -331,3 +354,4 @@ public class IndianStockPriceAutomation {
         }
     }
 }
+
