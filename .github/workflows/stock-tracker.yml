@@ -19,10 +19,24 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
     
-    - name: Create input file
+    - name: Create input CSV file
       run: |
         mkdir -p src/main/resources
-        echo -e "Stock Symbol\nRELIANCE\nTCS\nINFOSYS" > src/main/resources/stocks_list.xlsx
+        cat > src/main/resources/stocks_list.csv << EOF
+Stock Symbol
+RELIANCE
+TCS
+INFOSYS
+WIPRO
+HDFCBANK
+BHARTIARTL
+ITC
+HCLTECH
+KOTAKBANK
+LT
+EOF
+        echo "CSV file created with stock symbols"
+        cat src/main/resources/stocks_list.csv
     
     - name: Set up virtual display
       run: |
@@ -68,12 +82,23 @@ jobs:
         echo "🕒 Started at: $(date)"
         echo "🌐 Display: $DISPLAY"
         echo "🦎 Geckodriver location: $(which geckodriver)"
+        echo "📊 Input file contents:"
+        cat src/main/resources/stocks_list.csv
     
     - name: Execute Stock Price Tracker
       run: |
         export DISPLAY=:99
         mvn clean compile
         mvn exec:java -Dexec.mainClass="com.example.IndianStockPriceAutomation" -Duser.timezone=Asia/Kolkata
+    
+    - name: Verify output file
+      run: |
+        if [ -f "stock_prices_output.xlsx" ]; then
+          ls -la stock_prices_output.xlsx
+          echo "✅ Stock prices file generated successfully"
+        else
+          echo "❌ Stock prices file not found"
+        fi
     
     - name: Upload Stock Price Results
       uses: actions/upload-artifact@v4
@@ -83,3 +108,9 @@ jobs:
         path: |
           stock_prices_output.xlsx
         retention-days: 30
+    
+    - name: Completion Summary
+      run: |
+        echo "✅ Stock Price Tracker completed!"
+        echo "📁 Check the 'Artifacts' section to download your results"
+        echo "🕒 Completed at: $(date)"
