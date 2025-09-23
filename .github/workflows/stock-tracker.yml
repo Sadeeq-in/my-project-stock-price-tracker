@@ -28,11 +28,6 @@ jobs:
         echo "INFOSYS" >> src/main/resources/stocks_list.csv
         echo "WIPRO" >> src/main/resources/stocks_list.csv
         echo "HDFCBANK" >> src/main/resources/stocks_list.csv
-        echo "BHARTIARTL" >> src/main/resources/stocks_list.csv
-        echo "ITC" >> src/main/resources/stocks_list.csv
-        echo "HCLTECH" >> src/main/resources/stocks_list.csv
-        echo "KOTAKBANK" >> src/main/resources/stocks_list.csv
-        echo "LT" >> src/main/resources/stocks_list.csv
         echo "CSV file created with stock symbols"
         cat src/main/resources/stocks_list.csv
     
@@ -43,17 +38,13 @@ jobs:
         Xvfb :99 -screen 0 1920x1080x16 > /dev/null 2>&1 &
         sleep 3
     
-    - name: Install Firefox and Geckodriver manually
+    - name: Install Chrome
       run: |
-        sudo apt-get install -y firefox
-        firefox --version
-        GECKODRIVER_VERSION="v0.33.0"
-        wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz
-        tar -xzf geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz
-        chmod +x geckodriver
-        sudo mv geckodriver /usr/local/bin/
-        geckodriver --version
-        sudo apt-get install -y libgtk-3-0 libdbus-glib-1-2 libxss1
+        wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        google-chrome --version
     
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -74,7 +65,7 @@ jobs:
         echo "📝 Note: ${{ github.event.inputs.run_note }}"
         echo "🕒 Started at: $(date)"
         echo "🌐 Display: $DISPLAY"
-        echo "🦎 Geckodriver location: $(which geckodriver)"
+        echo "🌎 Chrome version: $(google-chrome --version)"
         echo "📊 Input file contents:"
         cat src/main/resources/stocks_list.csv
     
@@ -101,9 +92,3 @@ jobs:
         path: |
           stock_prices_output.xlsx
         retention-days: 30
-    
-    - name: Completion Summary
-      run: |
-        echo "✅ Stock Price Tracker completed!"
-        echo "📁 Check the 'Artifacts' section to download your results"
-        echo "🕒 Completed at: $(date)"
