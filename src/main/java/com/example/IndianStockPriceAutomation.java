@@ -19,8 +19,7 @@ import java.nio.file.Paths;
 
 public class IndianStockPriceAutomation {
 
-    private static final String EXCEL_FILE_PATH =
-        Paths.get("src", "main", "resources", "stocks_list.xlsx").toString();
+    private static final String CSV_FILE_PATH = "src/main/resources/stocks_list.csv";
     private static final String OUTPUT_FILE_PATH = "stock_prices_output.xlsx";
     private static final int TIMEOUT_SECONDS = 15;
 
@@ -30,9 +29,9 @@ public class IndianStockPriceAutomation {
     }
 
     public void runStockPriceScript() {
-        List<String> stockSymbols = readStockSymbolsFromExcel();
+        List<String> stockSymbols = readStockSymbolsFromCSV();
         if (stockSymbols.isEmpty()) {
-            System.out.println("No stock symbols found in Excel file!");
+            System.out.println("No stock symbols found in CSV file!");
             return;
         }
 
@@ -62,45 +61,36 @@ public class IndianStockPriceAutomation {
         }
     }
 
-    private List<String> readStockSymbolsFromExcel() {
+    // NEW CSV READER METHOD
+    private List<String> readStockSymbolsFromCSV() {
         List<String> stockSymbols = new ArrayList<>();
-
-        try (FileInputStream fis = new FileInputStream(EXCEL_FILE_PATH);
-             Workbook workbook = new XSSFWorkbook(fis)) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rowIterator = sheet.iterator();
-
-            // Skip header row if exists
-            if (rowIterator.hasNext()) {
-                Row headerRow = rowIterator.next();
-                Cell firstCell = headerRow.getCell(0);
-                if (firstCell != null &&
-                        firstCell.getStringCellValue().toLowerCase().contains("symbol")) {
-                    // Skip header row
-                } else {
-                    // First row contains data, add it
-                    stockSymbols.add(getCellValueAsString(firstCell));
-                }
-            }
-
-            // Read remaining rows
-            while (rowIterator.hasNext()) {
-                Row row = rowIterator.next();
-                Cell cell = row.getCell(0);
-                if (cell != null) {
-                    String symbol = getCellValueAsString(cell).trim();
-                    if (!symbol.isEmpty()) {
-                        stockSymbols.add(symbol);
+        
+        try (BufferedReader br = new BufferedReader(new FileReader(CSV_FILE_PATH))) {
+            String line;
+            boolean firstLine = true;
+            
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                
+                if (firstLine) {
+                    // Skip header if it contains "Symbol"
+                    if (line.toLowerCase().contains("symbol")) {
+                        firstLine = false;
+                        continue;
                     }
+                    firstLine = false;
+                }
+                
+                if (!line.isEmpty()) {
+                    stockSymbols.add(line);
                 }
             }
-
+            
         } catch (IOException e) {
-            System.err.println("Error reading Excel file: " + e.getMessage());
-            System.out.println("Please ensure the Excel file '" + EXCEL_FILE_PATH + "' exists with stock symbols in the first column.");
+            System.err.println("Error reading CSV file: " + e.getMessage());
+            System.out.println("Please ensure the CSV file '" + CSV_FILE_PATH + "' exists with stock symbols.");
         }
-
+        
         return stockSymbols;
     }
 
@@ -324,23 +314,6 @@ public class IndianStockPriceAutomation {
         }
     }
 
-    private String getCellValueAsString(Cell cell) {
-        if (cell == null) return "";
-
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                return String.valueOf((long) cell.getNumericCellValue());
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
-            default:
-                return "";
-        }
-    }
-
     private String getCurrentTimestamp() {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
@@ -358,8 +331,3 @@ public class IndianStockPriceAutomation {
         }
     }
 }
-
-
-
-
-
