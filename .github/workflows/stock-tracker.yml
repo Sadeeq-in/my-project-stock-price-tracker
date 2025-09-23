@@ -13,27 +13,36 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TZ: Asia/Kolkata
+      DISPLAY: :99
     
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
     
-    - name: Set timezone to IST
-      uses: szenius/set-timezone@v2.0
-      with:
-        timezoneLinux: "Asia/Kolkata"
+    - name: Create input file
+      run: |
+        mkdir -p src/main/resources
+        echo -e "Stock Symbol\nRELIANCE\nTCS\nINFOSYS" > src/main/resources/stocks_list.xlsx
+    
+    - name: Set up virtual display
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        Xvfb :99 -screen 0 1920x1080x16 > /dev/null 2>&1 &
+        sleep 3
+    
+    - name: Install Firefox and dependencies
+      run: |
+        sudo apt-get install -y firefox firefox-geckodriver
+        sudo apt-get install -y libgtk-3-0 libdbus-glib-1-2 libxss1
+        firefox --version
+        geckodriver --version
     
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-    
-    - name: Install Firefox
-      run: |
-        sudo apt-get update
-        sudo apt-get install firefox -y
-        firefox --version
     
     - name: Cache Maven packages
       uses: actions/cache@v4
@@ -47,32 +56,13 @@ jobs:
         echo "🚀 Running Stock Price Tracker"
         echo "📝 Note: ${{ github.event.inputs.run_note }}"
         echo "🕒 Started at: $(date)"
-        echo "⏰ Current IST time: $(TZ='Asia/Kolkata' date)"
-        echo "🌐 System timezone: $(timedatectl | grep 'Time zone' || echo 'Timezone info not available')"
-        echo "📅 Current date in IST: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S')"
-    
-    - name: Verify Java timezone
-      run: |
-        echo "Java system timezone:"
-        java -XshowSettings:locale -version 2>&1 | grep -i timezone || true
-        java -Duser.timezone=Asia/Kolkata -cp . -c "System.out.println(java.time.ZoneId.systemDefault());" || echo "Java timezone verification skipped"
+        echo "🌐 Display: $DISPLAY"
     
     - name: Execute Stock Price Tracker
       run: |
-        echo "Starting Maven build..."
+        export DISPLAY=:99
         mvn clean compile
-        echo "Running stock price tracker with IST timezone..."
         mvn exec:java -Dexec.mainClass="com.example.IndianStockPriceAutomation" -Duser.timezone=Asia/Kolkata
-    
-    - name: Verify output timestamp
-      run: |
-        echo "Checking generated Excel file timestamp..."
-        if [ -f "stock_prices_output.xlsx" ]; then
-          ls -la stock_prices_output.xlsx
-          echo "✅ Stock prices file generated successfully"
-        else
-          echo "❌ Stock prices file not found"
-        fi
     
     - name: Upload Stock Price Results
       uses: actions/upload-artifact@v4
@@ -82,10 +72,3 @@ jobs:
         path: |
           stock_prices_output.xlsx
         retention-days: 30
-    
-    - name: Completion Summary
-      run: |
-        echo "✅ Stock Price Tracker completed!"
-        echo "📁 Check the 'Artifacts' section to download your results"
-        echo "🕒 Completed at: $(TZ='Asia/Kolkata' date)"
-        echo "📊 Data collected with IST timestamps for consistency"
